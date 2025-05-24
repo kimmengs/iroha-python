@@ -3,7 +3,7 @@ import subprocess
 def list_assets_via_cli():
     try:
         result = subprocess.run(
-            ["iroha", "asset", "list", "all"],
+            ["iroha", "--config", "/root/client/client.toml", "asset", "list", "all"],
             capture_output=True,
             text=True,
             check=True
