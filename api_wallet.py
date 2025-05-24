@@ -34,11 +34,12 @@ def create_wallet():
 @app.get("/balance", response_model=BalanceResponse)
 def get_balance(
     public_key: str = Query(..., description="The public key of the account"),
-    asset_id: str = Query(..., description="The asset id (e.g. usd#hivefund)")
+    asset_id: str = Query(..., description="The asset id (e.g. usd#hivefund)"),
+    private_key: str = Query(..., description="The private key of the account")
 ):
     # Compose account_id from public_key and domain (assuming domain is always hivefund)
     account_id = f"{asset_id}##{public_key}@hivefund"
-    balance = get_asset_balance(account_id, "hivefund", public_key)
+    balance = get_asset_balance(account_id, "hivefund", public_key, private_key)
 
     return BalanceResponse(
         account_id=account_id,
