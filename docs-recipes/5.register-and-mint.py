@@ -29,8 +29,8 @@ client = iroha2.Client.create(
 #     print(" - ", a,)
 
 
-asset_definition_id = "time#wonderland"
-asset_id = "time##ed0120CE7FA46C9DCE7EA4B125E2E36BDB63EA33073E7590AC92816AE1E861B7048B03@wonderland"
+asset_definition_id = "usd#wonderland"
+asset_id = "usd##ed0120CE7FA46C9DCE7EA4B125E2E36BDB63EA33073E7590AC92816AE1E861B7048B03@wonderland"
 
 # if "time##ed0120CE7FA46C9DCE7EA4B125E2E36BDB63EA33073E7590AC92816AE1E861B7048B03@wonderland" in assets:
 #     print("'ed0120CE7FA46C9DCE7EA4B125E2E36BDB63EA33073E7590AC92816AE1E861B7048B03@wonderland' already has asset 'time'.")
