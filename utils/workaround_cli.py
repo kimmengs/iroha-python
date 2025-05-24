@@ -80,6 +80,7 @@ def get_asset_balance(account_id, domain, public_key):
         balance = result.stdout.strip()
         return balance
     except subprocess.CalledProcessError as e:
+        print("Error running Iroha CLI:", e.stderr)
         # Optionally, parse e.stderr for more details
         return "0"
     finally:
