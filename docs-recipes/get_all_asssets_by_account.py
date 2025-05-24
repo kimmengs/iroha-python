@@ -2,7 +2,7 @@ import subprocess
 
 def get_assets_for_account(account_id):
     result = subprocess.run(
-        ["iroha", "--config", "/root/client/client.toml", "assets", "list", "all"],
+        ["iroha", "--config", "/root/client/client.toml", "asset", "list", "all"],
         capture_output=True,
         text=True,
         check=True
