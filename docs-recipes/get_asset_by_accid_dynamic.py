@@ -16,6 +16,9 @@ torii_url = "{torii_url}"
 
     try:
         # Run Iroha CLI with this dynamic config
+        with open(config_path) as f:
+            print("=== Generated client.toml ===")
+            print(f.read())
         result = subprocess.run(
             ["iroha", "--config", config_path, "assets", "list", "all"],
             capture_output=True,
