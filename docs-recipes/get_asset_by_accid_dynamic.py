@@ -3,20 +3,22 @@ import tempfile
 import os
 
 def list_assets_with_account(account_id, public_key, private_key, torii_url="http://127.0.0.1:8080"):
-    # Create and close temp TOML config file
-    with tempfile.NamedTemporaryFile("w+", delete=False) as tmp:
-        config_path = tmp.name
-        tmp.write(f"""
+    # Create a temp file without auto-deletion
+    tmp = tempfile.NamedTemporaryFile("w+", delete=False)
+    config_path = tmp.name
+    tmp.write(f"""
 account_id = "{account_id}"
 public_key = "{public_key}"
 private_key = "{private_key}"
 torii_url = "{torii_url}"
 """)
-    # Now it's flushed and closed — safe to use
+    tmp.close()  # Important: close before subprocess uses it
 
     try:
+        # Confirm content is really there
         print("Using config path:", config_path)
         with open(config_path) as f:
+            print("== Config File Content ==")
             print(f.read())
 
         result = subprocess.run(
@@ -25,9 +27,10 @@ torii_url = "{torii_url}"
             text=True,
             check=True
         )
-        print("Asset list output:")
+        print("== Asset list output ==")
         print(result.stdout)
         return result.stdout
+
     finally:
         os.remove(config_path)
 
