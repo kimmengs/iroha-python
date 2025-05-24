@@ -21,16 +21,22 @@ password = "ilovetea"
 """)
         
 def create_wallet_with_kagami():
-    # if not shutil.which("kagami"):
-    #     raise RuntimeError("kagami CLI not found in PATH.")
     result = subprocess.run(
-        ["/root/.cargo/bin/kagami", "crypto", "generate-keypair", "--output-format", "json"],
+        ["/root/.cargo/bin/kagami", "crypto"],
         capture_output=True,
         text=True,
         check=True
     )
-    keypair = json.loads(result.stdout)
-    return keypair["public_key"], keypair["private_key"]
+    pub = None
+    priv = None
+    for line in result.stdout.splitlines():
+        if line.startswith("Public key"):
+            pub = line.split(":")[1].strip().strip('"')
+        elif line.startswith("Private key"):
+            priv = line.split(":")[1].strip().strip('"')
+    if not pub or not priv:
+        raise RuntimeError("Failed to parse kagami output:\n" + result.stdout)
+    return pub, priv
 
 def register_account_and_asset(public_key, domain, asset_name):
     account_id = f"{public_key}@{domain}"
