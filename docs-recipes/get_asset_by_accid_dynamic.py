@@ -3,7 +3,7 @@ import tempfile
 import os
 
 def list_assets_with_account(account_id, public_key, private_key, torii_url="http://127.0.0.1:8080"):
-    # Create a temporary client.toml
+    # Create and close temp TOML config file
     with tempfile.NamedTemporaryFile("w+", delete=False) as tmp:
         config_path = tmp.name
         tmp.write(f"""
@@ -12,20 +12,20 @@ public_key = "{public_key}"
 private_key = "{private_key}"
 torii_url = "{torii_url}"
 """)
-        tmp.flush()
+    # Now it's flushed and closed — safe to use
 
     try:
-        # Run Iroha CLI with this dynamic config
+        print("Using config path:", config_path)
         with open(config_path) as f:
-            print("=== Generated client.toml ===")
             print(f.read())
+
         result = subprocess.run(
-            ["iroha", "--config", config_path, "assets", "list", "all"],
+            ["iroha", "--config", config_path, "asset", "list", "all"],
             capture_output=True,
             text=True,
             check=True
         )
-        print("Asset list:")
+        print("Asset list output:")
         print(result.stdout)
         return result.stdout
     finally:
