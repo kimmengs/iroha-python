@@ -28,9 +28,9 @@ def list_assets_with_account(domain, public_key, private_key):
 
     try:
         print("Using config path:", config_path)
-        with open(config_path) as f:
-            print("=== Generated client.toml ===")
-            print(f.read())
+        # with open(config_path) as f:
+        #     print("=== Generated client.toml ===")
+        #     print(f.read())
 
         result = subprocess.run(
             ["iroha", "--config", config_path, "asset", "list", "all"],
@@ -38,9 +38,15 @@ def list_assets_with_account(domain, public_key, private_key):
             text=True,
             check=True
         )
-        print("=== Iroha CLI Output ===")
-        print(result.stdout)
-        return result.stdout
+        
+        filtered_assets = []
+        for line in result.stdout.splitlines():
+            if f"{public_key}@{domain}" in line:
+                filtered_assets.append(line.strip())
+
+        print("\n".join(filtered_assets))
+        return filtered_assets
+        # return result.stdout
     except subprocess.CalledProcessError as e:
         print("Error running Iroha CLI:", e.stderr)
         return None
