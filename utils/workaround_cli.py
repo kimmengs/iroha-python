@@ -57,7 +57,34 @@ def register_account_and_asset(public_key, domain, asset_name):
         if "already exists" not in e.stderr:
             raise
     return account_id, asset_id
+def get_asset_balance(account_id, domain, public_key):
+    """
+    Returns the balance of asset_id for account_id using the Iroha CLI.
+    """
+    # Create temp config
+    tmp = tempfile.NamedTemporaryFile("w+", delete=False)
+    config_path = tmp.name
+    tmp.close()
 
+    write_iroha_config(config_path, domain, public_key, "")
+    try:
+        result = subprocess.run(
+            [
+               "iroha","--config", config_path, "asset", "get", f"--id={account_id}",
+            ],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        # Parse balance from CLI output (assuming output is just the balance)
+        balance = result.stdout.strip()
+        return balance
+    except subprocess.CalledProcessError as e:
+        # Optionally, parse e.stderr for more details
+        return "0"
+    finally:
+        os.remove(config_path)
+        
 def list_assets_with_account(domain, public_key, private_key):
     # Create temp config
     tmp = tempfile.NamedTemporaryFile("w+", delete=False)
