@@ -77,7 +77,12 @@ def get_asset_balance(account_id, domain, public_key, private_key):
             check=True
         )
         # Parse balance from CLI output (assuming output is just the balance)
-        balance = result.stdout.strip()
+        output = result.stdout.strip()
+        try:
+            data = json.loads(output)
+            balance = data.get("value", "0")
+        except Exception:
+            balance = "0"
         return balance
     except subprocess.CalledProcessError as e:
         print("Error running Iroha CLI:", e.stderr)
