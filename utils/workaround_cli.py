@@ -21,10 +21,10 @@ password = "ilovetea"
 """)
         
 def create_wallet_with_kagami():
-    if not shutil.which("kagami"):
-        raise RuntimeError("kagami CLI not found in PATH.")
+    # if not shutil.which("kagami"):
+    #     raise RuntimeError("kagami CLI not found in PATH.")
     result = subprocess.run(
-        ["kagami", "crypto", "generate-keypair", "--output-format", "json"],
+        ["/root/.cargo/bin/kagami", "crypto", "generate-keypair", "--output-format", "json"],
         capture_output=True,
         text=True,
         check=True
