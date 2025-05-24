@@ -1,5 +1,7 @@
 import iroha2
 
+
+
 key_pair = iroha2.KeyPair.from_json("""
 {
   "public_key": "ed0120CE7FA46C9DCE7EA4B125E2E36BDB63EA33073E7590AC92816AE1E861B7048B03",
@@ -22,26 +24,6 @@ client = iroha2.Client.create(
             api_url,
             chain_id)
 
-domains = client.query_all_domains()
 
-print("Listing all domains...")
-for d in domains:
-    print(" - ", d,)
-
-if "looking_glass" in domains:
-    print("'looking_glass' domain already exists.")
-
-register = iroha2.Instruction.register_domain("looking_glass")
-
-client.submit_executable([register])
-
-while True:
-    domains = client.query_all_domains()
-    
-    if "looking_glass" in domains:
-        break
-
-print("Domain 'looking_glass' has been registered.")
-print("Listing all domains...")
-for d in domains:
-    print(" - ", d,)
+assest =  client.query_all_assets()
+print(assest)

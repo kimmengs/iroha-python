@@ -10,8 +10,8 @@ key_pair = iroha2.KeyPair.from_json("""
 account_id = "ed0120CE7FA46C9DCE7EA4B125E2E36BDB63EA33073E7590AC92816AE1E861B7048B03@wonderland"
 web_login = "mad_hatter"
 password = "ilovetea"
-api_url = "http://127.0.0.1:8080/"
-telemetry_url = "http://127.0.0.1:8180/"
+api_url = "http://212.56.43.254:8080/"
+telemetry_url = "http://212.56.43.254:8180/"
 chain_id = "00000000-0000-0000-0000-000000000000"
 
 client = iroha2.Client.create(
