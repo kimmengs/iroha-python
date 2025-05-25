@@ -14,7 +14,7 @@ class AssetIdWithBalance(BaseModel):
 class BalanceResponse(BaseModel):
     account_id: str
     asset_id: str
-    balance: str
+    balance: int
 class WalletResponse(BaseModel):
     account_id: str
     public_key: str
@@ -23,7 +23,7 @@ class WalletResponse(BaseModel):
         
 class AssetsByAccountResponse(BaseModel):
     account_id: str
-    assets: list
+    assets: list[AssetIdWithBalance]
 
 @app.post("/wallet", response_model=WalletResponse)
 def create_wallet():
@@ -45,14 +45,17 @@ def get_balance(
     asset_id: str = Query(..., description="The asset id (e.g. usd#hivefund)"),
     private_key: str = Query(..., description="The private key of the account")
 ):
-    # Compose account_id from public_key and domain (assuming domain is always hivefund)
     account_id = f"{asset_id}##{public_key}@hivefund"
     balance = get_asset_balance(account_id, "hivefund", public_key, private_key)
+    try:
+        balance_int = int(balance)
+    except Exception:
+        balance_int = 0
 
     return BalanceResponse(
         account_id=account_id,
         asset_id=asset_id,
-        balance=balance
+        balance=balance_int
     )
     
 @app.get("/assets-by-account", response_model=AssetsByAccountResponse)

@@ -97,6 +97,8 @@ def get_asset_balance(account_id, domain, public_key, private_key):
         os.remove(config_path)
         
 def list_assets_with_account(domain, public_key, private_key):
+    import json
+
     # Create temp config
     tmp = tempfile.NamedTemporaryFile("w+", delete=False)
     config_path = tmp.name
@@ -111,18 +113,43 @@ def list_assets_with_account(domain, public_key, private_key):
             text=True,
             check=True
         )
-        
-        filtered_assets = []
-        for line in result.stdout.splitlines():
-            if f"{public_key}@{domain}" in line:
-                filtered_assets.append(line.strip())
 
-        print("\n".join(filtered_assets))
-        return filtered_assets
-        # return result.stdout
+        assets_with_balance = []
+        account_id = f"{public_key}@{domain}"
+
+        for line in result.stdout.splitlines():
+            line = line.strip().strip(",").strip('"')
+            if account_id in line:
+                asset_id = line
+                # Get balance for this asset_id
+                try:
+                    balance_result = subprocess.run(
+                        [
+                            "iroha", "--config", config_path, "asset", "get", f"--id={asset_id}"
+                        ],
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+                    output = balance_result.stdout.strip()
+                    try:
+                        data = json.loads(output)
+                        balance = int(data.get("value", 0))
+                    except Exception:
+                        balance = 0
+                except Exception:
+                    balance = 0
+
+                assets_with_balance.append({
+                    "asset_id": asset_id,
+                    "balance": balance
+                })
+
+        return assets_with_balance
+
     except subprocess.CalledProcessError as e:
         print("Error running Iroha CLI:", e.stderr)
-        return None
+        return []
     finally:
         os.remove(config_path)
         
