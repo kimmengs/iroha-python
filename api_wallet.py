@@ -2,10 +2,15 @@ from fastapi import FastAPI
 from fastapi import Query
 from pydantic import BaseModel
 from utils.workaround_cli import create_wallet_with_kagami, get_asset_balance, register_account_and_asset, list_assets_with_account
-import subprocess
-import json
-import shutil
 
+from fastapi import Header, HTTPException, Depends
+
+API_KEY = "683dc455-acca-4722-af47-709174f6fce3"  # Change this to your actual API key
+
+def api_key_auth(api_key: str = Header(..., alias="api-key")):
+    if api_key != API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing API Key")
+    
 app = FastAPI()
 
 class AssetIdWithBalance(BaseModel):
@@ -25,7 +30,7 @@ class AssetsByAccountResponse(BaseModel):
     account_id: str
     assets: list[AssetIdWithBalance]
 
-@app.post("/wallet", response_model=WalletResponse)
+@app.post("/wallet", response_model=WalletResponse, dependencies=[Depends(api_key_auth)])
 def create_wallet():
     DOMAIN = "hivefund"
     ASSET_NAME = "usd|khr"
@@ -39,7 +44,7 @@ def create_wallet():
         asset_ids=asset_ids_with_balance
     )
     
-@app.get("/balance", response_model=BalanceResponse)
+@app.get("/balance", response_model=BalanceResponse, dependencies=[Depends(api_key_auth)])
 def get_balance(
     public_key: str = Query(..., description="The public key of the account"),
     asset_id: str = Query(..., description="The asset id (e.g. usd#hivefund)"),
@@ -58,7 +63,7 @@ def get_balance(
         balance=balance_int
     )
     
-@app.get("/assets-by-account", response_model=AssetsByAccountResponse)
+@app.get("/assets-by-account", response_model=AssetsByAccountResponse, dependencies=[Depends(api_key_auth)])
 def get_assets_by_account(
     public_key: str = Query(..., description="The public key of the account"),
     domain: str = Query("hivefund", description="The domain of the account"),
