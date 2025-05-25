@@ -8,6 +8,9 @@ import shutil
 
 app = FastAPI()
 
+class AssetIdWithBalance(BaseModel):
+    asset_id: str
+    balance: int
 class BalanceResponse(BaseModel):
     account_id: str
     asset_id: str
@@ -16,8 +19,8 @@ class WalletResponse(BaseModel):
     account_id: str
     public_key: str
     private_key: str
-    asset_ids: list
-    
+    asset_ids: list[AssetIdWithBalance]
+        
 class AssetsByAccountResponse(BaseModel):
     account_id: str
     assets: list
@@ -28,11 +31,12 @@ def create_wallet():
     ASSET_NAME = "usd|khr"
     public_key, private_key = create_wallet_with_kagami()
     account_id, asset_ids = register_account_and_asset(public_key, DOMAIN, ASSET_NAME)
+    asset_ids_with_balance = [{"asset_id": aid, "balance": 0} for aid in asset_ids]
     return WalletResponse(
         account_id=account_id,
         public_key=public_key,
         private_key=private_key,
-        asset_ids=asset_ids
+        asset_ids=asset_ids_with_balance
     )
     
 @app.get("/balance", response_model=BalanceResponse)
