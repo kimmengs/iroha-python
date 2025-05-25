@@ -16,7 +16,7 @@ class WalletResponse(BaseModel):
     account_id: str
     public_key: str
     private_key: str
-    asset_id: str
+    asset_ids: list
     
 class AssetsByAccountResponse(BaseModel):
     account_id: str
@@ -27,12 +27,12 @@ def create_wallet():
     DOMAIN = "hivefund"
     ASSET_NAME = "usd|khr"
     public_key, private_key = create_wallet_with_kagami()
-    account_id, asset_id = register_account_and_asset(public_key, DOMAIN, ASSET_NAME)
+    account_id, asset_ids = register_account_and_asset(public_key, DOMAIN, ASSET_NAME)
     return WalletResponse(
         account_id=account_id,
         public_key=public_key,
         private_key=private_key,
-        asset_id=asset_id
+        asset_ids=asset_ids
     )
     
 @app.get("/balance", response_model=BalanceResponse)
