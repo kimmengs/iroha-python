@@ -25,7 +25,7 @@ class AssetsByAccountResponse(BaseModel):
 @app.post("/wallet", response_model=WalletResponse)
 def create_wallet():
     DOMAIN = "hivefund"
-    ASSET_NAME = "usd"
+    ASSET_NAME = "usd|khr"
     public_key, private_key = create_wallet_with_kagami()
     account_id, asset_id = register_account_and_asset(public_key, DOMAIN, ASSET_NAME)
     return WalletResponse(

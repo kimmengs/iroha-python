@@ -38,7 +38,7 @@ def create_wallet_with_kagami():
         raise RuntimeError("Failed to parse kagami output:\n" + result.stdout)
     return pub, priv
 
-def register_account_and_asset(public_key, domain, asset_name):
+def register_account_and_asset(public_key, domain, asset_names):
     account_id = f"{public_key}@{domain}"
     try:
        subprocess.run([
@@ -48,15 +48,20 @@ def register_account_and_asset(public_key, domain, asset_name):
         if "already exists" not in e.stderr:
             raise
     # Mint 0 units of asset to the new account
-    asset_id = f"{asset_name}##{account_id}"
-    try:
-        subprocess.run([
-            "iroha", "--config", "/root/client/client.toml", "asset", "mint", f"--id={asset_id}", f"--quantity=0"
-        ], check=True)
-    except subprocess.CalledProcessError as e:
-        if "already exists" not in e.stderr:
-            raise
-    return account_id, asset_id
+    asset_ids = []
+    # Support multiple asset names separated by '|'
+    for asset_name in asset_names.split("|"):
+        asset_name = asset_name.strip()
+        asset_id = f"{asset_name}##{account_id}"
+        try:
+            subprocess.run([
+                "iroha", "--config", "/root/client/client.toml", "asset", "mint", f"--id={asset_id}", f"--quantity=0"
+            ], check=True)
+        except subprocess.CalledProcessError as e:
+            if "already exists" not in e.stderr:
+                raise
+        asset_ids.append(asset_id)
+    return account_id, asset_ids
 def get_asset_balance(account_id, domain, public_key, private_key):
     """
     Returns the balance of asset_id for account_id using the Iroha CLI.
