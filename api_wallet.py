@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi import Query
 from pydantic import BaseModel
-from utils.workaround_cli import create_wallet_with_kagami, get_asset_balance, register_account_and_asset
+from utils.workaround_cli import create_wallet_with_kagami, get_asset_balance, register_account_and_asset, list_assets_with_account
 import subprocess
 import json
 import shutil
@@ -17,6 +17,10 @@ class WalletResponse(BaseModel):
     public_key: str
     private_key: str
     asset_id: str
+    
+class AssetsByAccountResponse(BaseModel):
+    account_id: str
+    assets: list
 
 @app.post("/wallet", response_model=WalletResponse)
 def create_wallet():
@@ -45,4 +49,17 @@ def get_balance(
         account_id=account_id,
         asset_id=asset_id,
         balance=balance
+    )
+    
+@app.get("/assets-by-account", response_model=AssetsByAccountResponse)
+def get_assets_by_account(
+    public_key: str = Query(..., description="The public key of the account"),
+    domain: str = Query("hivefund", description="The domain of the account"),
+    private_key: str = Query(..., description="The private key of the account")
+):
+    account_id = f"{public_key}@{domain}"
+    assets = list_assets_with_account(domain, public_key, private_key)
+    return AssetsByAccountResponse(
+        account_id=account_id,
+        assets=assets
     )
