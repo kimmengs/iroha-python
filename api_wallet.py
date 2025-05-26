@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi import Query
 from pydantic import BaseModel
-from utils.workaround_cli import create_wallet_with_kagami, get_asset_balance, register_account_and_asset, list_assets_with_account
+from utils.workaround_cli import create_wallet_with_kagami, get_asset_balance, register_account_and_asset, list_assets_with_account, transfer_asset
 
 from fastapi import Header, HTTPException, Depends
 
@@ -29,6 +29,12 @@ class WalletResponse(BaseModel):
 class AssetsByAccountResponse(BaseModel):
     account_id: str
     assets: list[AssetIdWithBalance]
+
+class TransferResponse(BaseModel):
+    source: str
+    destination: str
+    object: str
+    hash: str
 
 @app.post("/wallet", response_model=WalletResponse, dependencies=[Depends(api_key_auth)])
 def create_wallet():
@@ -74,4 +80,21 @@ def get_assets_by_account(
     return AssetsByAccountResponse(
         account_id=account_id,
         assets=assets
+    )
+
+@app.get("/transfer", response_model=TransferResponse, dependencies=[Depends(api_key_auth)])
+def transfer_asset_(
+    public_key: str = Query(..., description="The public key of the account"),
+    domain: str = Query("hivefund", description="The domain of the account"),
+    private_key: str = Query(..., description="The private key of the account"),
+    asset_id: str = Query(..., description="The asset id (e.g. usd#hivefund)"),
+    to_account_id: str = Query(..., description="The account id to transfer the asset to"),
+    quantity: int = Query(..., description="The quantity of the asset to transfer")
+):
+    assets = transfer_asset(domain, public_key, private_key, asset_id, to_account_id, quantity)
+    return TransferResponse(
+        source=assets.get("source", ""),
+        destination=assets.get("destination", ""),
+        object=assets.get("object", ""),
+        hash=assets.get("hash", "")
     )

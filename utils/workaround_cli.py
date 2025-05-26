@@ -176,6 +176,77 @@ def list_all_assets(domain, public_key, private_key):
         return None
     finally:
         os.remove(config_path)
+        
+def transfer_asset(domain, public_key, private_key, asset_id, to_account_id, quantity):
+    """
+    Transfers a quantity of an asset to another account using the Iroha CLI.
+    """
+    # Create temp config
+    tmp = tempfile.NamedTemporaryFile("w+", delete=False)
+    config_path = tmp.name
+    tmp.close()
+
+    write_iroha_config(config_path, domain, public_key, private_key)
+
+    try:
+        result = subprocess.run(
+            [
+                "iroha",
+                "--config", config_path,
+                "asset", "transfer",
+                f"--to={to_account_id}@{domain}",
+                f"--id={asset_id}##{public_key}@{domain}",
+                f"--quantity={quantity}"
+            ],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        output = result.stdout.strip()
+
+        # Extract JSON block and hash from output
+        json_block = None
+        hash_value = None
+        lines = output.splitlines()
+        json_lines = []
+        in_json = False
+        for line in lines:
+            if line.strip().startswith("{"):
+                in_json = True
+            if in_json:
+                json_lines.append(line)
+            if line.strip().endswith("}"):
+                in_json = False
+        if json_lines:
+            json_block = "\n".join(json_lines)
+        for line in lines:
+            if line.strip().startswith("Hash:"):
+                hash_value = line.split(":", 1)[-1].strip().strip('"')
+
+        # Parse JSON and extract fields
+        import json
+        source = destination = obj = None
+        if json_block:
+            try:
+                data = json.loads(json_block)
+                transfer = data["content"]["payload"]["instructions"]["Instructions"][0]["Transfer"]["Asset"]
+                source = transfer.get("source")
+                destination = transfer.get("destination")
+                obj = transfer.get("object")
+            except Exception as e:
+                print("Error parsing transfer JSON:", e)
+
+        return {
+            "source": source,
+            "destination": destination,
+            "object": obj,
+            "hash": hash_value
+        }
+    except subprocess.CalledProcessError as e:
+        print("Error running Iroha CLI:", e.stderr)
+        return None
+    finally:
+        os.remove(config_path)
 
 # 🔐 Example usage (replace with real keys for each account)
 create_wallet_with_kagami()
