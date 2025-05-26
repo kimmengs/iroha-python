@@ -38,3 +38,7 @@ Running the tests requires you to have a running local test network of iroha. In
 ```sh
 poetry run python -m pytest tests/
 ```
+
+## to run project
+
+uvicorn api_wallet:app --host 0.0.0.0 --port 8000 --reload

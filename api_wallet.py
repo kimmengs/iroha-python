@@ -35,6 +35,13 @@ class TransferResponse(BaseModel):
     destination: str
     object: str
     hash: str
+class TransferRequest(BaseModel):
+    public_key: str
+    domain: str = "hivefund"
+    private_key: str
+    asset_id: str
+    to_account_id: str
+    quantity: int
 
 @app.post("/wallet", response_model=WalletResponse, dependencies=[Depends(api_key_auth)])
 def create_wallet():
@@ -82,16 +89,16 @@ def get_assets_by_account(
         assets=assets
     )
 
-@app.get("/transfer", response_model=TransferResponse, dependencies=[Depends(api_key_auth)])
-def transfer_asset_(
-    public_key: str = Query(..., description="The public key of the account"),
-    domain: str = Query("hivefund", description="The domain of the account"),
-    private_key: str = Query(..., description="The private key of the account"),
-    asset_id: str = Query(..., description="The asset id (e.g. usd#hivefund)"),
-    to_account_id: str = Query(..., description="The account id to transfer the asset to"),
-    quantity: int = Query(..., description="The quantity of the asset to transfer")
-):
-    assets = transfer_asset(domain, public_key, private_key, asset_id, to_account_id, quantity)
+@app.post("/transfer", response_model=TransferResponse, dependencies=[Depends(api_key_auth)])
+def transfer_asset_(payload: TransferRequest):
+    assets = transfer_asset(
+        payload.domain,
+        payload.public_key,
+        payload.private_key,
+        payload.asset_id,
+        payload.to_account_id,
+        payload.quantity
+    )
     return TransferResponse(
         source=assets.get("source", ""),
         destination=assets.get("destination", ""),
