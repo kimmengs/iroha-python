@@ -205,6 +205,7 @@ def transfer_asset(domain, public_key, private_key, asset_id, to_account_id, qua
             check=True
         )
         output = result.stdout.strip()
+        print("Transfer output:", output)
 
         # Extract hash from output
         hash_value = None
