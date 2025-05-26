@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from utils.workaround_cli import create_wallet_with_kagami, get_asset_balance, register_account_and_asset, list_assets_with_account, transfer_asset
 
 from fastapi import Header, HTTPException, Depends
+from fastapi import HTTPException
 
 API_KEY = "683dc455-acca-4722-af47-709174f6fce3"  # Change this to your actual API key
 
@@ -89,6 +90,7 @@ def get_assets_by_account(
         assets=assets
     )
 
+
 @app.post("/transfer", response_model=TransferResponse, dependencies=[Depends(api_key_auth)])
 def transfer_asset_(payload: TransferRequest):
     assets = transfer_asset(
@@ -99,9 +101,11 @@ def transfer_asset_(payload: TransferRequest):
         payload.to_account_id,
         payload.quantity
     )
+    if not assets:
+        raise HTTPException(status_code=400, detail="Transfer failed or CLI error")
     return TransferResponse(
-        source=assets.get("source", ""),
-        destination=assets.get("destination", ""),
-        object=assets.get("object", ""),
-        hash=assets.get("hash", "")
+        source=str(assets.get("source") or ""),
+        destination=str(assets.get("destination") or ""),
+        object=str(assets.get("object") or ""),
+        hash=str(assets.get("hash") or "")
     )
