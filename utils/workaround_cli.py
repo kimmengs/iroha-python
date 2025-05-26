@@ -205,16 +205,18 @@ def transfer_asset(domain, public_key, private_key, asset_id, to_account_id, qua
             check=True
         )
         output = result.stdout.strip()
-        print("Transfer output:", output)
 
         # Extract hash from output
         hash_value = None
-        for line in output.splitlines():
-            if line.strip().startswith("Hash:"):
-                hash_value = line.split(":", 1)[-1].strip().strip('"')
+        lines = output.splitlines()
+
+        for i, line in enumerate(lines):
+            if line.strip() == "Hash:" and i + 1 < len(lines):
+                hash_value = lines[i + 1].strip().strip('"')
                 break
 
         return hash_value
+
     except subprocess.CalledProcessError as e:
         print("Error running Iroha CLI:", e.stderr)
         return None
