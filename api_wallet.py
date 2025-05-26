@@ -34,7 +34,7 @@ class AssetsByAccountResponse(BaseModel):
 class TransferResponse(BaseModel):
     source: str
     destination: str
-    object: str
+    object: int
     asset_id: str
     hash: str
 class TransferRequest(BaseModel):
@@ -94,7 +94,7 @@ def get_assets_by_account(
 
 @app.post("/transfer", response_model=TransferResponse, dependencies=[Depends(api_key_auth)])
 def transfer_asset_(payload: TransferRequest):
-    assets = transfer_asset(
+    hash_value = transfer_asset(
         payload.domain,
         payload.public_key,
         payload.private_key,
@@ -102,12 +102,12 @@ def transfer_asset_(payload: TransferRequest):
         payload.to_account_id,
         payload.quantity
     )
-    if not assets:
+    if not hash_value:
         raise HTTPException(status_code=400, detail="Transfer failed or CLI error")
     return TransferResponse(
         source=payload.public_key,
         destination=payload.to_account_id,
         object=payload.quantity,
         asset_id=payload.asset_id,
-        hash=assets
+        hash=hash_value
     )
