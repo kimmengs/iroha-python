@@ -35,6 +35,7 @@ class TransferResponse(BaseModel):
     source: str
     destination: str
     object: str
+    asset_id: str
     hash: str
 class TransferRequest(BaseModel):
     public_key: str
@@ -104,8 +105,9 @@ def transfer_asset_(payload: TransferRequest):
     if not assets:
         raise HTTPException(status_code=400, detail="Transfer failed or CLI error")
     return TransferResponse(
-        source=str(assets.get("source") or ""),
-        destination=str(assets.get("destination") or ""),
-        object=str(assets.get("object") or ""),
-        hash=str(assets.get("hash") or "")
+        source=payload.public_key,
+        destination=payload.to_account_id,
+        object=payload.quantity,
+        asset_id=payload.asset_id,
+        hash=assets
     )

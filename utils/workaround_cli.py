@@ -3,6 +3,7 @@ import tempfile
 import os
 import json
 import shutil
+
     
 def write_iroha_config(path, domain, public_key, private_key, torii_url="http://127.0.0.1:8080/"):
     with open(path, "w") as f:
@@ -180,6 +181,7 @@ def list_all_assets(domain, public_key, private_key):
 def transfer_asset(domain, public_key, private_key, asset_id, to_account_id, quantity):
     """
     Transfers a quantity of an asset to another account using the Iroha CLI.
+    Returns only the transaction hash.
     """
     # Create temp config
     tmp = tempfile.NamedTemporaryFile("w+", delete=False)
@@ -204,44 +206,14 @@ def transfer_asset(domain, public_key, private_key, asset_id, to_account_id, qua
         )
         output = result.stdout.strip()
 
-        # Extract JSON block and hash from output
-        json_block = None
+        # Extract hash from output
         hash_value = None
-        lines = output.splitlines()
-        json_lines = []
-        in_json = False
-        for line in lines:
-            if line.strip().startswith("{"):
-                in_json = True
-            if in_json:
-                json_lines.append(line)
-            if line.strip().endswith("}"):
-                in_json = False
-        if json_lines:
-            json_block = "\n".join(json_lines)
-        for line in lines:
+        for line in output.splitlines():
             if line.strip().startswith("Hash:"):
                 hash_value = line.split(":", 1)[-1].strip().strip('"')
+                break
 
-        # Parse JSON and extract fields
-        import json
-        source = destination = obj = None
-        if json_block:
-            try:
-                data = json.loads(json_block)
-                transfer = data["content"]["payload"]["instructions"]["Instructions"][0]["Transfer"]["Asset"]
-                source = transfer.get("source")
-                destination = transfer.get("destination")
-                obj = transfer.get("object")
-            except Exception as e:
-                print("Error parsing transfer JSON:", e)
-
-        return {
-            "source": source,
-            "destination": destination,
-            "object": obj,
-            "hash": hash_value
-        }
+        return hash_value
     except subprocess.CalledProcessError as e:
         print("Error running Iroha CLI:", e.stderr)
         return None
@@ -249,11 +221,11 @@ def transfer_asset(domain, public_key, private_key, asset_id, to_account_id, qua
         os.remove(config_path)
 
 # 🔐 Example usage (replace with real keys for each account)
-create_wallet_with_kagami()
+# create_wallet_with_kagami()
 # pub, priv = create_wallet_with_kagami()
 
-list_assets_with_account(
-    domain="hivefund",
-    public_key="ed0120C1E00D1E555CA402EDDB26B04D3DD14829DB1EA1EC9A6D679EF336CEDCFC2F9C",
-    private_key="802620F409DC65A0DFBCFBDF0B479C7318A17D30041D19EA99C4B0A26AE5A232CA18DE"
-)
+# list_assets_with_account(
+#     domain="hivefund",
+#     public_key="ed0120C1E00D1E555CA402EDDB26B04D3DD14829DB1EA1EC9A6D679EF336CEDCFC2F9C",
+#     private_key="802620F409DC65A0DFBCFBDF0B479C7318A17D30041D19EA99C4B0A26AE5A232CA18DE"
+# )
