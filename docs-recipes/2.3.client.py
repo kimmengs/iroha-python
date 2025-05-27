@@ -22,8 +22,13 @@ client = iroha2.Client.create(
             api_url,
             chain_id)
 try:
-    transactions = client.query_all_transactions_by_account(account_id)
-    print(transactions)
+    response = client.query({
+        "find_transactions_by_account_id": {
+            "account_id": account_id
+        }
+    })
+    print(response)
+
     # for tx in transactions:
         # print(tx)
 except Exception as e:
