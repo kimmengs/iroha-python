@@ -2,23 +2,29 @@ import requests
 import json
 from iroha2 import Client, KeyPair
 
-class PatchedClient(Client):
-    def query_raw(self, raw_query_dict):
+class ClientWrapper:
+    def __init__(self, client: Client):
+        self.client = client
+        self.api_url = client.api_url
+
+    def query_raw(self, payload: dict):
         url = self.api_url + "/query"
         headers = { "Content-Type": "application/json" }
-        print("[DEBUG] Sending raw query:", json.dumps(raw_query_dict, indent=2))
-        res = requests.post(url, headers=headers, json=raw_query_dict)
-        return res.json()
+        print("[DEBUG] Sending raw query...")
+        response = requests.post(url, headers=headers, json=payload)
+        return response.json()
 
-# Use your keys and client setup
+# Initialize the real client
 key_pair = KeyPair.from_json("""
 {
-   "public_key": "ed0120CE7FA46C9DCE7EA4B125E2E36BDB63EA33073E7590AC92816AE1E861B7048B03",
-  "private_key": "802620CCF31D85E3B32A4BEA59987CE0C78E3B8E2DB93881468AB2435FE45D5C9DCD53"
+    "public_key": "ed0120CE7FA46C9DCE7EA4B125E2E36BDB63EA33073E7590AC92816AE1E861B7048B03",
+    "private_key": "802620CCF31D85E3B32A4BEA59987CE0C78E3B8E2DB93881468AB2435FE45D5C9DCD53"
 }
 """)
+
 account_id = "ed0120CE7FA46C9DCE7EA4B125E2E36BDB63EA33073E7590AC92816AE1E861B7048B03@hivefund"
-client = PatchedClient.create(
+
+client = Client.create(
     key_pair,
     account_id,
     "mad_hatter",
@@ -27,11 +33,14 @@ client = PatchedClient.create(
     "00000000-0000-0000-0000-000000000000"
 )
 
-# Send raw JSON query (won’t be signed!)
+wrapped = ClientWrapper(client)
+
+# Now test a raw query
 payload = {
     "find_transactions_by_account_id": {
         "account_id": account_id
     }
 }
-response = client.query_raw(payload)
-print(response)
+
+response = wrapped.query_raw(payload)
+print("Response:", response)
