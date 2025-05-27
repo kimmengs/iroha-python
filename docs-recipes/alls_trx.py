@@ -27,7 +27,7 @@ client = iroha2.Client.create(
             chain_id)
 try:
     response = client.query_transaction_by_hash(tx_hash_bytes)
-    print(response)
+    # print(response)
 
     # for tx in transactions:
         # print(tx)
