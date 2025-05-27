@@ -7,7 +7,7 @@ key_pair = iroha2.KeyPair.from_json("""
 }
 """)
 
-account_id = "ed0120CE7FA46C9DCE7EA4B125E2E36BDB63EA33073E7590AC92816AE1E861B7048B03@wonderland"
+account_id = "ed0120CE7FA46C9DCE7EA4B125E2E36BDB63EA33073E7590AC92816AE1E861B7048B03@hivefund"
 web_login = "mad_hatter"
 password = "ilovetea"
 api_url = "http://212.56.43.254:8080/"
@@ -21,10 +21,11 @@ client = iroha2.Client.create(
             password,
             api_url,
             chain_id)
+try:
+    transactions = client.query_all_transactions_by_account(account_id)
+    for tx in transactions:
+        print(tx)
+except Exception as e:
+    print("Error while querying transactions:", e)
 
-transactions = client.query_all_transactions_by_account(account_id)
-
-print("Listing all transactions for account:")
-for tx in transactions:
-    print(" - ", tx)
 
