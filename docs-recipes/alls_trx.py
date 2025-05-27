@@ -1,4 +1,5 @@
 import iroha2
+import binascii
 
 key_pair = iroha2.KeyPair.from_json("""
 {
@@ -14,6 +15,9 @@ api_url = "http://212.56.43.254:8080/"
 telemetry_url = "http://212.56.43.254:8180/"
 chain_id = "00000000-0000-0000-0000-000000000000"
 
+tx_hash_hex = "6DB616CCD9AA6E53E261F9C1DE43583F474FB1906A940F652659A61534D314F7"
+tx_hash_bytes = binascii.unhexlify(tx_hash_hex)
+
 client = iroha2.Client.create(
             key_pair,
             account_id,
@@ -22,7 +26,7 @@ client = iroha2.Client.create(
             api_url,
             chain_id)
 try:
-    response = client.query_transaction_by_hash("6DB616CCD9AA6E53E261F9C1DE43583F474FB1906A940F652659A61534D314F7")
+    response = client.query_transaction_by_hash(tx_hash_bytes)
     print(response)
 
     # for tx in transactions:
