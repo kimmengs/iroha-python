@@ -22,11 +22,7 @@ client = iroha2.Client.create(
             api_url,
             chain_id)
 try:
-    response = client.query({
-        "find_transactions_by_account_id": {
-            "account_id": account_id
-        }
-    })
+    response = client.query_transaction_by_hash("6DB616CCD9AA6E53E261F9C1DE43583F474FB1906A940F652659A61534D314F7")
     print(response)
 
     # for tx in transactions:
