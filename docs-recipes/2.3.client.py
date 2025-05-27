@@ -23,8 +23,9 @@ client = iroha2.Client.create(
             chain_id)
 try:
     transactions = client.query_all_transactions_by_account(account_id)
-    for tx in transactions:
-        print(tx)
+    print(transactions)
+    # for tx in transactions:
+        # print(tx)
 except Exception as e:
     print("Error while querying transactions:", e)
 
