@@ -16,11 +16,11 @@ app = FastAPI()
 
 class AssetIdWithBalance(BaseModel):
     asset_id: str
-    balance: int
+    balance: float
 class BalanceResponse(BaseModel):
     account_id: str
     asset_id: str
-    balance: int
+    balance: float
 class WalletResponse(BaseModel):
     account_id: str
     public_key: str
@@ -68,14 +68,14 @@ def get_balance(
     account_id = f"{asset_id}##{public_key}@hivefund"
     balance = get_asset_balance(account_id, "hivefund", public_key, private_key)
     try:
-        balance_int = int(balance)
+        balance_int = float(balance)
     except Exception:
         balance_int = 0
 
     return BalanceResponse(
         account_id=account_id,
         asset_id=asset_id,
-        balance=balance_int
+        balance=float(balance_int) 
     )
     
 @app.get("/assets-by-account", response_model=AssetsByAccountResponse, dependencies=[Depends(api_key_auth)])

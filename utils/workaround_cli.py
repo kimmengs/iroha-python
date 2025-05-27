@@ -88,12 +88,12 @@ def get_asset_balance(account_id, domain, public_key, private_key):
             data = json.loads(output)
             balance = data.get("value", "0")
         except Exception:
-            balance = "0"
-        return balance
+            balance = 0
+        return float(balance) / 100
     except subprocess.CalledProcessError as e:
         print("Error running Iroha CLI:", e.stderr)
         # Optionally, parse e.stderr for more details
-        return "0"
+        return 0
     finally:
         os.remove(config_path)
         
@@ -143,7 +143,7 @@ def list_assets_with_account(domain, public_key, private_key):
 
                 assets_with_balance.append({
                     "asset_id": asset_id,
-                    "balance": balance
+                    "balance": float(balance) / 100
                 })
 
         return assets_with_balance
@@ -198,7 +198,7 @@ def transfer_asset(domain, public_key, private_key, asset_id, to_account_id, qua
                 "asset", "transfer",
                 f"--to={to_account_id}@{domain}",
                 f"--id={asset_id}##{public_key}@{domain}",
-                f"--quantity={quantity}"
+                f"--quantity={quantity * 100}"
             ],
             capture_output=True,
             text=True,
