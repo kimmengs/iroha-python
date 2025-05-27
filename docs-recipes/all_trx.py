@@ -22,7 +22,7 @@ client = iroha2.Client.create(
             api_url,
             chain_id)
 
-domains = client.query_all_transactions()
+domains = client.query_all_domains()
 
 print("Listing all domains...")
 for d in domains:
