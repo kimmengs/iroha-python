@@ -94,6 +94,13 @@ def get_assets_by_account(
 
 @app.post("/transfer", response_model=TransferResponse, dependencies=[Depends(api_key_auth)])
 def transfer_asset_(payload: TransferRequest):
+    print("✅ Received payload:")
+    print("  public_key:", payload.public_key)
+    print("  private_key:", payload.private_key)
+    print("  domain:", payload.domain)
+    print("  asset_id:", payload.asset_id)
+    print("  to_account_id:", payload.to_account_id)
+    print("  quantity:", payload.quantity)
     hash_value = transfer_asset(
         payload.domain,
         payload.public_key,
