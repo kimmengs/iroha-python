@@ -34,7 +34,7 @@ class AssetsByAccountResponse(BaseModel):
 class TransferResponse(BaseModel):
     source: str
     destination: str
-    object: float
+    object: int
     asset_id: str
     hash: str
 class TransferRequest(BaseModel):
@@ -43,7 +43,7 @@ class TransferRequest(BaseModel):
     private_key: str
     asset_id: str
     to_account_id: str
-    quantity: int
+    quantity: float
 
 @app.post("/wallet", response_model=WalletResponse, dependencies=[Depends(api_key_auth)])
 def create_wallet():
