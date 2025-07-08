@@ -198,7 +198,7 @@ def transfer_asset(domain, public_key, private_key, asset_id, to_account_id, qua
                 "asset", "transfer",
                 f"--to={to_account_id}@{domain}",
                 f"--id={asset_id}##{public_key}@{domain}",
-                f"--quantity={quantity * 100}"
+                f"--quantity={int(quantity * 100)}"
             ],
             capture_output=True,
             text=True,
