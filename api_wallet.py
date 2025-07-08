@@ -5,6 +5,7 @@ from utils.workaround_cli import create_wallet_with_kagami, get_asset_balance, r
 
 from fastapi import Header, HTTPException, Depends
 from fastapi import HTTPException
+from decimal import Decimal
 
 API_KEY = "683dc455-acca-4722-af47-709174f6fce3"  # Change this to your actual API key
 
@@ -34,7 +35,7 @@ class AssetsByAccountResponse(BaseModel):
 class TransferResponse(BaseModel):
     source: str
     destination: str
-    object: int
+    object: float
     asset_id: str
     hash: str
 class TransferRequest(BaseModel):
