@@ -34,7 +34,7 @@ class AssetsByAccountResponse(BaseModel):
 class TransferResponse(BaseModel):
     source: str
     destination: str
-    object: int
+    object: float
     asset_id: str
     hash: str
 class TransferRequest(BaseModel):
