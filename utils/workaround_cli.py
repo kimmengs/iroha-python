@@ -3,7 +3,7 @@ import tempfile
 import os
 import json
 import shutil
-
+from decimal import Decimal
     
 def write_iroha_config(path, domain, public_key, private_key, torii_url="http://127.0.0.1:8080/"):
     with open(path, "w") as f:
@@ -198,7 +198,8 @@ def transfer_asset(domain, public_key, private_key, asset_id, to_account_id, qua
                 "asset", "transfer",
                 f"--to={to_account_id}@{domain}",
                 f"--id={asset_id}##{public_key}@{domain}",
-                f"--quantity={int(quantity * 100)}"
+                f"--quantity={int(Decimal(str(quantity)) * 100)}"
+
             ],
             capture_output=True,
             text=True,
